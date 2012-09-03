@@ -2,6 +2,8 @@ use v6;
 use Test;
 use ISO_10303_21::Grammar;
 
+plan 104;
+
 for <A A2 AB2 AB2A> -> $keyword {
     my $match = ISO_10303_21::Grammar.parse($keyword, :rule<standard_keyword>);
     isa_ok $match, Match, "<standard_keyword> matches $keyword - 1";
@@ -67,7 +69,3 @@ for (".A.", ".AD2.", ".GD.") -> $keyword {
     isa_ok $match, Match, "<enumeration> matches $keyword - 1";
     ok $match, "<enumeration> matches $keyword - 2";
 }
-
-
-
-done;
