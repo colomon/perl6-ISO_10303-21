@@ -26,4 +26,10 @@ for '!"*$%&.#+,-()?/:;<=>@[]{|}^`~'.comb -> $symbol {
     ok $match, "<special> matches $symbol - 2";
 }
 
+for '\\!"*$%&.abc?/:AB0<=>@[]{|}^`~'.comb -> $symbol {
+    my $match = ISO_10303_21::Grammar.parse($symbol, :rule<character>);
+    isa_ok $match, Match, "<character> matches $symbol - 1";
+    ok $match, "<character> matches $symbol - 2";
+}
+
 done;
