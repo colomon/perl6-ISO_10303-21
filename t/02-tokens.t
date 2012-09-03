@@ -38,6 +38,36 @@ for ("+", "-") -> $keyword {
     ok $match, "<sign> matches $keyword - 2";
 }
 
+for <1 -1 +1 342 -3 0 -0> -> $keyword {
+    my $match = ISO_10303_21::Grammar.parse($keyword, :rule<integer>);
+    isa_ok $match, Match, "<integer> matches $keyword - 1";
+    ok $match, "<integer> matches $keyword - 2";
+}
+
+for <1. -1.0 +1. 342.E2 -3.0E-2 0. -0.> -> $keyword {
+    my $match = ISO_10303_21::Grammar.parse($keyword, :rule<real>);
+    isa_ok $match, Match, "<real> matches $keyword - 1";
+    ok $match, "<real> matches $keyword - 2";
+}
+
+for ("''", "'This is a test'", "''''", "'\\\\a different test'") -> $keyword {
+    my $match = ISO_10303_21::Grammar.parse($keyword, :rule<string>);
+    isa_ok $match, Match, "<string> matches $keyword - 1";
+    ok $match, "<string> matches $keyword - 2";
+}
+
+for ("#1", "#23", "#141123") -> $keyword {
+    my $match = ISO_10303_21::Grammar.parse($keyword, :rule<entity_instance_name>);
+    isa_ok $match, Match, "<entity_instance_name> matches $keyword - 1";
+    ok $match, "<entity_instance_name> matches $keyword - 2";
+}
+
+for (".A.", ".AD2.", ".GD.") -> $keyword {
+    my $match = ISO_10303_21::Grammar.parse($keyword, :rule<enumeration>);
+    isa_ok $match, Match, "<enumeration> matches $keyword - 1";
+    ok $match, "<enumeration> matches $keyword - 2";
+}
+
 
 
 done;
