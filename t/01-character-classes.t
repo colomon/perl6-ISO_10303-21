@@ -2,6 +2,8 @@ use v6;
 use Test;
 use ISO_10303_21::Grammar;
 
+plan 240;
+
 for (0..9)».Str -> $digit {
     my $match = ISO_10303_21::Grammar.parse($digit, :rule<digit>);
     isa_ok $match, Match, "<digit> matches $digit - 1";
@@ -31,5 +33,3 @@ for '\\!"*$%&.abc?/:AB0<=>@[]{|}^`~'.comb -> $symbol {
     isa_ok $match, Match, "<character> matches $symbol - 1";
     ok $match, "<character> matches $symbol - 2";
 }
-
-done;
