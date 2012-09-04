@@ -52,4 +52,37 @@ ENDSEC;];
     ok $match, "<header_section> matches a header - 2";
 }
 
+{
+    my $record = q[DIMENSIONAL_EXPONENTS(0.0,0.0,0.0,0.0,0.0,0.0,0.0)];
+    my $match = ISO_10303_21::Grammar.parse($record, :rule<simple_record>);
+    isa_ok $match, Match, "<simple_record> matches $record - 1";
+    ok $match, "<simple_record> matches $record - 2";
+}
+
+{
+    my $record = q[#2=DIMENSIONAL_EXPONENTS(0.0,0.0,0.0,0.0,0.0,0.0,0.0);];
+    my $match = ISO_10303_21::Grammar.parse($record, :rule<simple_entity_instance>);
+    isa_ok $match, Match, "<simple_entity_instance> matches $record - 1";
+    ok $match, "<simple_entity_instance> matches $record - 2";
+}
+
+my @entities = (
+    q[#2=DIMENSIONAL_EXPONENTS(0.0,0.0,0.0,0.0,0.0,0.0,0.0);],
+    q[#17=PRODUCT_DEFINITION('CAx-AS1','Design Definition',#16,#13);],
+    q[#49=PRODUCT('nut','nut','Generic Nut for AS1 Assembly',(#12));],
+    q[#69=CARTESIAN_POINT('#69',(0.0,40.,55.));],
+    q[#140=(BOUNDED_CURVE()B_SPLINE_CURVE(3,(#136,#137,#138,#139),
+    .UNSPECIFIED.,.F.,.F.)B_SPLINE_CURVE_WITH_KNOTS((4,4),(0.0,0.5),
+    .UNSPECIFIED.)CURVE()GEOMETRIC_REPRESENTATION_ITEM()
+    RATIONAL_B_SPLINE_CURVE((1.0,0.33333333333,0.33333333333,1.0))
+    REPRESENTATION_ITEM('#140'));],
+    );
+
+for @entities -> $entity {
+    my $match = ISO_10303_21::Grammar.parse($entity, :rule<entity_instance>);
+    isa_ok $match, Match, "<entity_instance> matches $entity - 1";
+    ok $match, "<entity_instance> matches $entity - 2";
+}
+
+
 done;

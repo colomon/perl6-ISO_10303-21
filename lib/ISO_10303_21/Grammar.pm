@@ -48,4 +48,11 @@ grammar ISO_10303_21::Grammar
         <header_entity_list>?
         "ENDSEC;"
     }
+
+    rule simple_record { <keyword> '(' <parameter_list>? ')' }
+    rule subsuper_record { '(' <simple_record>+ ')' }
+    rule simple_entity_instance { <entity_instance_name> '=' <simple_record> ';' }
+    rule complex_entity_instance { <entity_instance_name> '=' <subsuper_record> ';' }
+    rule entity_instance { <simple_entity_instance> | <complex_entity_instance> }
+    
 }
