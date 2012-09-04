@@ -5,7 +5,7 @@ grammar ISO_10303_21::Grammar
     token space { " " }
     token digit { <[0..9]> }
     token lower { <[a..z]> }
-    token upper { <[A..Z]> }
+    token upper { <[A..Z]> | '_' }
     token special { '!' | '"' | '*' | '$' | '%' | '&' | '.' | '#'
                   | '+' | ',' | '-' | '(' | ')' | '?' | '/' | ':'
                   | ';' | '<' | '=' | '>' | '@' | '[' | ']' | '{'
@@ -31,4 +31,21 @@ grammar ISO_10303_21::Grammar
     
     token hex { <[0..9]> | <[A..F]> }
     token binary { '"' <[0..3]> <hex>* '"' }
+
+    token parameter { <typed_parameter> | <untyped_parameter> | <omitted_parameter> }
+    token omitted_parameter { '*' }
+    token untyped_parameter { '$' | <real> | <integer> | <string> 
+                            | <entity_instance_name> | <enumeration> | <binary> | <list_of_parameters> }
+    rule typed_parameter { <keyword> '(' <parameter> ')' }
+    rule list_of_parameters { '(' [ <parameter> ]* % [ ',' ] ')' }
+    rule parameter_list { [ <parameter> ]+ % [ ',' ] }
+    
+    rule header_entity { <keyword> '(' <parameter_list> ')' ';' }
+    rule header_entity_list { <header_entity>+ }
+    rule header_section { 
+        "HEADER;" 
+        <header_entity> <header_entity> <header_entity>
+        <header_entity_list>?
+        "ENDSEC;"
+    }
 }
