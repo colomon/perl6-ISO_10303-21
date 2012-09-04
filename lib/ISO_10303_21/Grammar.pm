@@ -54,5 +54,16 @@ grammar ISO_10303_21::Grammar
     rule simple_entity_instance { <entity_instance_name> '=' <simple_record> ';' }
     rule complex_entity_instance { <entity_instance_name> '=' <subsuper_record> ';' }
     rule entity_instance { <simple_entity_instance> | <complex_entity_instance> }
-    
+
+    rule data_section { 
+        "DATA" [ '(' <parameter_list> ')']? ';'
+        <entity_instance>*
+        "ENDSEC" ';' 
+    }
+
+    rule exchange_file {
+        "ISO-10303-21;"
+        <header_section> <data_section>+
+        "END-ISO-10303-21;"
+    }
 }

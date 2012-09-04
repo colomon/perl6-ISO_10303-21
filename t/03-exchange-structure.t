@@ -84,5 +84,24 @@ for @entities -> $entity {
     ok $match, "<entity_instance> matches $entity - 2";
 }
 
+{
+    my $data =
+q[DATA;
+#1=DIMENSIONAL_EXPONENTS(1.0,0.0,0.0,0.0,0.0,0.0,0.0);
+#2=DIMENSIONAL_EXPONENTS(0.0,0.0,0.0,0.0,0.0,0.0,0.0);
+#3=(NAMED_UNIT(*)SI_UNIT($,.STERADIAN.)SOLID_ANGLE_UNIT());
+#4=(LENGTH_UNIT()NAMED_UNIT(*)SI_UNIT(.MILLI.,.METRE.));
+#5=(NAMED_UNIT(*)PLANE_ANGLE_UNIT()SI_UNIT($,.RADIAN.));
+#6=CARTESIAN_POINT('#6',(0.0,0.0,0.0));
+#7=DIRECTION('#7',(1.0,0.0,0.0));
+#8=DIRECTION('#8',(0.0,0.0,1.0));
+#9=AXIS2_PLACEMENT_3D('#9',#6,#8,#7);
+ENDSEC;];
+    
+    my $match = ISO_10303_21::Grammar.parse($data, :rule<data_section>);
+    isa_ok $match, Match, "<data_section> matches a data - 1";
+    ok $match, "<data_section> matches a data - 2";
+}
+
 
 done;
