@@ -22,9 +22,19 @@ grammar ISO_10303_21::Grammar
     token integer { <sign>? <digit> <digit>* }
     token real { <sign>? <digit>+ '.' <digit>* [ 'E' <sign>? <digit>+ ]? }
     
+    token hex_one  { <hex> <hex> }
+    token hex_two  { <hex_one> <hex_one> }
+    token hex_four { <hex_two> <hex_two> }
+    token page         { <reverse_solidus> 'S' <reverse_solidus> <character> }
+    token alphabet     { <reverse_solidus> 'P' <upper> <reverse_solidus> <character> }
+    token end_extended { <reverse_solidus> 'X0' <reverse_solidus> }
+    token extended2    { <reverse_solidus> 'X2' <reverse_solidus> <hex_two>+ <end_extended> }
+    token extended4    { <reverse_solidus> 'X4' <reverse_solidus> <hex_four>+ <end_extended> }
+    token arbitrary    { <reverse_solidus> 'X' <reverse_solidus> <hex_one> }
+    token control_directive { <page> | <alphabet> | <extended2> | <extended4> | <arbitrary> }
+    
     token non_q_char { <special> | <digit> | <space> | <lower> | <upper> }
-    # next one needs control directive too.
-    token string { "'" [ <non_q_char> | [<apostrophe> ** 2] | [<reverse_solidus> ** 2] ]* "'" }
+    token string { "'" [ <non_q_char> | [<apostrophe> ** 2] | [<reverse_solidus> ** 2] | <control_directive> ]* "'" }
     
     token entity_instance_name { '#' <digit>+ }
     token enumeration { '.' <upper> [ <upper> | <digit> ]* '.' }

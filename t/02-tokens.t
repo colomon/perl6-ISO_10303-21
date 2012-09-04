@@ -2,7 +2,7 @@ use v6;
 use Test;
 use ISO_10303_21::Grammar;
 
-plan 104;
+plan 108;
 
 for <A A2 AB2 AB2A> -> $keyword {
     my $match = ISO_10303_21::Grammar.parse($keyword, :rule<standard_keyword>);
@@ -52,10 +52,11 @@ for <1. -1.0 +1. 342.E2 -3.0E-2 0. -0.> -> $keyword {
     ok $match, "<real> matches $keyword - 2";
 }
 
-for ("''", "'This is a test'", "''''", "'\\\\a different test'") -> $keyword {
-    my $match = ISO_10303_21::Grammar.parse($keyword, :rule<string>);
-    isa_ok $match, Match, "<string> matches $keyword - 1";
-    ok $match, "<string> matches $keyword - 2";
+for ("''", "'This is a test'", "''''", "'\\\\a different test'", "'H\\X4\\ACE0FAC3\\X0\\llo!'",
+     "'z\\X2\\6C34\\X0\\\\X4\\00010000\\X0\\\\X4\\0001D11E\\X0\\'") -> $string {
+    my $match = ISO_10303_21::Grammar.parse($string, :rule<string>);
+    isa_ok $match, Match, "<string> matches $string - 1";
+    ok $match, "<string> matches $string - 2";
 }
 
 for ("#1", "#23", "#141123") -> $keyword {
