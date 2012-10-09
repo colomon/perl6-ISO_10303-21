@@ -13,32 +13,32 @@ grammar ISO_10303_21::Grammar
                   | '|' | '}' | '^' | '`' | '~' }
     token reverse_solidus { '\\' }
     token apostrophe { "'" }
-    token character { <space> | <digit> | <lower> | <upper> | <special> | <reverse_solidus> | <apostrophe> }
+    token character { <.space> | <.digit> | <.lower> | <.upper> | <.special> | <.reverse_solidus> | <.apostrophe> }
     
-    token standard_keyword { <upper> [ <upper> | <digit> ]* }
-    token user_defined_keyword { '!' <upper> [ <upper> | <digit> ]* }
+    token standard_keyword { <.upper> [ <.upper> | <.digit> ]* }
+    token user_defined_keyword { '!' <.upper> [ <.upper> | <.digit> ]* }
     token keyword { <user_defined_keyword> | <standard_keyword> }
     
     token sign { '+' | '-' }
-    token integer { <sign>? <digit> <digit>* }
-    token real { <sign>? <digit>+ '.' <digit>* [ 'E' <sign>? <digit>+ ]? }
+    token integer { <.sign>? <.digit> <.digit>* }
+    token real { <.sign>? <.digit>+ '.' <.digit>* [ 'E' <.sign>? <.digit>+ ]? }
     
     token hex_one  { <hex> <hex> }
     token hex_two  { <hex_one> <hex_one> }
     token hex_four { <hex_two> <hex_two> }
-    token page         { <reverse_solidus> 'S' <reverse_solidus> <character> }
-    token alphabet     { <reverse_solidus> 'P' <upper> <reverse_solidus> <character> }
-    token end_extended { <reverse_solidus> 'X0' <reverse_solidus> }
-    token extended2    { <reverse_solidus> 'X2' <reverse_solidus> <hex_two>+ <end_extended> }
-    token extended4    { <reverse_solidus> 'X4' <reverse_solidus> <hex_four>+ <end_extended> }
-    token arbitrary    { <reverse_solidus> 'X' <reverse_solidus> <hex_one> }
+    token page         { <.reverse_solidus> 'S' <.reverse_solidus> <character> }
+    token alphabet     { <.reverse_solidus> 'P' <upper> <.reverse_solidus> <character> }
+    token end_extended { <.reverse_solidus> 'X0' <.reverse_solidus> }
+    token extended2    { <.reverse_solidus> 'X2' <.reverse_solidus> <hex_two>+ <.end_extended> }
+    token extended4    { <.reverse_solidus> 'X4' <.reverse_solidus> <hex_four>+ <.end_extended> }
+    token arbitrary    { <.reverse_solidus> 'X' <.reverse_solidus> <hex_one> }
     token control_directive { <page> | <alphabet> | <extended2> | <extended4> | <arbitrary> }
     
-    token non_q_char { <special> | <digit> | <space> | <lower> | <upper> }
+    token non_q_char { <.special> | <.digit> | <.space> | <.lower> | <.upper> }
     token string { "'" [ <non_q_char> | [<apostrophe> ** 2] | [<reverse_solidus> ** 2] | <control_directive> ]* "'" }
     
-    token entity_instance_name { '#' <digit>+ }
-    token enumeration { '.' <upper> [ <upper> | <digit> ]* '.' }
+    token entity_instance_name { '#' <.digit>+ }
+    token enumeration { '.' <.upper> [ <.upper> | <.digit> ]* '.' }
     
     token hex { <[0..9]> | <[A..F]> }
     token binary { '"' <[0..3]> <hex>* '"' }
