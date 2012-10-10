@@ -7,10 +7,7 @@ grammar ISO_10303_21::Grammar
     token digit { <[0..9]> }
     token lower { <[a..z]> }
     token upper { <[A..Z]> | '_' }
-    token special { '!' | '"' | '*' | '$' | '%' | '&' | '.' | '#'
-                  | '+' | ',' | '-' | '(' | ')' | '?' | '/' | ':'
-                  | ';' | '<' | '=' | '>' | '@' | '[' | ']' | '{'
-                  | '|' | '}' | '^' | '`' | '~' }
+    token special { <[ !"*$%&.#+,\-()?/:;<=>@[\]{|}^`~ ]> }
     token reverse_solidus { '\\' }
     token apostrophe { "'" }
     token character { <.space> | <.digit> | <.lower> | <.upper> | <.special> | <.reverse_solidus> | <.apostrophe> }
