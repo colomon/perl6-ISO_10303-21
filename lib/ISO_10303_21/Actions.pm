@@ -18,7 +18,7 @@ class ISO_10303_21::Actions {
         for <entity_instance_name list_of_parameters> -> $s {
             return make $/{$s}.ast if $/{$s}.defined;
         }
-        [];
+        make [];
     }
     method typed_parameter($/) { make $<parameter>.ast }
     method list_of_parameters($/) { make merge-arrays(@($<parameter>)».ast); }
