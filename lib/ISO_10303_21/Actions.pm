@@ -9,16 +9,11 @@ sub merge-arrays(@arrays) {
 class ISO_10303_21::Actions {
     method entity_instance_name($/) { make [~$/] }
     method parameter($/) {
-        for <typed_parameter untyped_parameter omitted_parameter> -> $s {
-            return make $/{$s}.ast if $/{$s}.defined;
-        }
+        make $/.values[0].ast;
     }
     method omitted_parameter($/) { make [] }
     method untyped_parameter($/) {
-        for <entity_instance_name list_of_parameters> -> $s {
-            return make $/{$s}.ast if $/{$s}.defined;
-        }
-        make [];
+        make $/.values[0].ast // [];
     }
     method typed_parameter($/) { make $<parameter>.ast }
     method list_of_parameters($/) { make merge-arrays(@($<parameter>)».ast); }
