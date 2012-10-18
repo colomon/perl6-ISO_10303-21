@@ -69,4 +69,26 @@ is +$match.ast, 1, "and the ast has length 1";
 isa_ok $match.ast[0], Str, "and ast[0] is Str";
 is $match.ast[0], "#42", "and ast[0] is #42";
 
+$match = ISO_10303_21::Grammar.parse("LEAF('Blah', #42)",
+                                     :rule<simple_record>,
+                                     :actions(ISO_10303_21::Actions.new));
+isa_ok $match, Match, "<simple_record> matches LEAF('Blah', #42)";
+ok $match, "<simple_record> matches LEAF('Blah', #42)";
+isa_ok $match.ast, ISO_10303_21::Record, "and the ast is ISO_10303_21::Record";
+isa_ok $match.ast.keyword, Str, "with a Str keyword";
+is $match.ast.keyword, "LEAF", "'LEAF'";
+is +$match.ast.entity_instances, 1, "and the entity_instances has length 1";
+isa_ok $match.ast.entity_instances[0], Str, "and entity_instances[0] is Str";
+is $match.ast[0].entity_instances, "#42", "and entity_instances[0] is #42";
+
+$match = ISO_10303_21::Grammar.parse("LEAF()",
+                                     :rule<simple_record>,
+                                     :actions(ISO_10303_21::Actions.new));
+isa_ok $match, Match, "<simple_record> matches LEAF()";
+ok $match, "<simple_record> matches LEAF()";
+isa_ok $match.ast, ISO_10303_21::Record, "and the ast is ISO_10303_21::Record";
+isa_ok $match.ast.keyword, Str, "with a Str keyword";
+is $match.ast.keyword, "LEAF", "'LEAF'";
+is +$match.ast.entity_instances, 0, "and the entity_instances has length 0";
+
 done;
