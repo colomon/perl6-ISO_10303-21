@@ -42,7 +42,8 @@ grammar ISO_10303_21::Grammar
 
     token parameter { <typed_parameter> | <untyped_parameter> | <omitted_parameter> }
     token omitted_parameter { '*' }
-    token untyped_parameter { '$' | <real> | <integer> | <string> 
+    token default_parameter { '$' }
+    token untyped_parameter { <default_parameter> | <real> | <integer> | <string> 
                             | <entity_instance_name> | <enumeration> | <binary> | <list_of_parameters> }
     rule typed_parameter { <keyword> '(' <parameter> ')' }
     rule list_of_parameters { '(' [ <parameter> ]* % [ ',' ] ')' }
