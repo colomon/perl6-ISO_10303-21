@@ -71,12 +71,14 @@ grammar ISO_10303_21::Grammar
     }
 
     rule exchange_file {
+        ^
         "ISO-10303-21;"
         <header_section> <data_section>+
         "END-ISO-10303-21;"
+        $
     }
 }
 
 grammar ISO_10303_21::LooseGrammar is ISO_10303_21::Grammar {
-    token non_q_char { <special> | <digit> | <space> | <lower> | <upper> | \v }
+    token non_q_char { <.special> | <.digit> | <.space> | <.lower> | <.upper> | \w | \v }
 }
