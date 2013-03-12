@@ -3,31 +3,28 @@
 use v6;
 use ISO_10303_21::Grammar;
 
-class KeywordActions {
-    has $.keyword-bag;
-    
-    method new() {
-        self.bless(*, :keyword-bag(KeyBag.new));
-    }
-    
-    method keyword($/) {
-        $.keyword-bag{~$/}++;
-    }
-}
-
 for @*ARGS -> $file {
+    my $keyword-bag = KeyBag.new;
+    my $actions = class { 
+        method keyword($/) { $keyword-bag{~$/}++ }
+    };
+
     say "Reading $file";
-    my $actions = KeywordActions.new;
     my $file-data = slurp($file);
     $file-data .= subst(/"/*" .*? "*/"/, " ", :global);
-    my $match = ISO_10303_21::LooseGrammar.parse($file-data, :rule<exchange_file>, :$actions);
+    
+    say "Parsing $file";
+    my $match = ISO_10303_21::LooseGrammar.parse($file-data, 
+                                                 :rule<exchange_file>, 
+                                                 :$actions);
     if $match ~~ Match && $match {
         say "    read correctly!";
     } else {
         say "    failed!!!!";
     }
     
-    for $actions.keyword-bag.pairs.sort -> $keyword {
-        say $keyword.key ~ ": " ~ $keyword.value;
+    say "Contents:";
+    for $keyword-bag.pairs.sort -> Pair (:$key, :$value) {
+        say "$key: $value";
     }
 }
