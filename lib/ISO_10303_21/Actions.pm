@@ -3,19 +3,45 @@ use ISO_10303_21::Grammar;
 
 class ISO_10303_21::Record {
     has $.keyword;
-    has @.entity_instances;
+    has @.parameters;
+    
+    method entity_instances {
+        sub extract-instances($_) {
+            when ISO_10303_21::Record { $_.entity_instances; }
+            when List                 { $_.map(-> $i { extract-instances($i) }); }
+            when /^'#'(\d+)/          { $_; }
+            default                   { Nil; }
+        }
+        
+        @.parameters.map({ extract-instances($_) });
+    }
 }
 
 class ISO_10303_21::Actions {
     has %.entities;
     
-    method entity_instance_name($/) { make [~$/] }
-    method parameter($/)            { make $/.values[0].ast }
-    method omitted_parameter($/)    { make [] }
-    method untyped_parameter($/)    { make $/.values[0].ast // [] }
-    method typed_parameter($/)      { make $<parameter>.ast }
-    method list_of_parameters($/)   { make @($<parameter>)».ast.map(*.list).Array }
-    method parameter_list($/)       { make @($<parameter>)».ast.map(*.list).Array }
+    method parameter($/) {
+        if $<typed_parameter> {
+            make $<typed_parameter>.ast;
+        } elsif $<untyped_parameter> {
+            make $<untyped_parameter>.ast;
+        } else {
+            make ~$/;
+        }
+    }
+    method untyped_parameter($/) {
+        if $<list_of_parameters> {
+            make $<list_of_parameters>.ast;
+        } else {
+            make ~$/;
+        }
+    }
+    method typed_parameter($/) { 
+        make ISO_10303_21::Record.new(:keyword($<keyword>),
+                                      :parameters($<parameter>.ast)); 
+    }
+    method list_of_parameters($/)   { make @($<parameter>)».ast.Array }
+    method parameter_list($/)       { make @($<parameter>)».ast.Array }
 
     method simple_record($/) {
         # bit awkward, but this way works in both Rakudo and Niecza
@@ -23,10 +49,10 @@ class ISO_10303_21::Actions {
             my $parameter_list = $<parameter_list>;
             $parameter_list = $parameter_list[0] if $parameter_list ~~ Parcel;
             make ISO_10303_21::Record.new(:keyword(~$<keyword>),
-                                          :entity_instances($parameter_list.ast // []));
+                                          :parameters($parameter_list.ast // []));
         } else {
             make ISO_10303_21::Record.new(:keyword(~$<keyword>),
-                                          :entity_instances([]));
+                                          :parameters([]));
         }
     }
     method subsuper_record($/) { make $<simple_record>».ast }
