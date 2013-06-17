@@ -2,6 +2,23 @@ use v6;
 use ISO_10303_21::Grammar;
 use ISO_10303_21::Actions;
 
+sub follow-chain(%entities, %reverse, $id) {
+    # say :$id.perl;
+    my $desc = "$id ({ %entities{$id}.map(*.keyword) })";
+    if %entities{$id}.?keyword ~~ /SHAPE_REPRESENTATION$/ {
+        # say "    finished $desc";
+        return $desc;
+    }
+    my $owner;
+    for %reverse{$id}.list -> $possible-owner {
+        # say "        considering $possible-owner { %entities{$possible-owner}.map(*.keyword) }";
+        next if %entities{$possible-owner}.?keyword eq "STYLED_ITEM" | "PRESENTATION_LAYER_ASSIGNMENT";
+        $owner = $possible-owner;
+    }
+    return $desc unless $owner;
+    $desc, follow-chain(%entities, %reverse, $owner);
+}
+
 sub MAIN(*@filenames) {
     for @filenames -> $file {
         $*ERR.say: "Reading $file";
@@ -25,15 +42,10 @@ sub MAIN(*@filenames) {
                 for %reverse{$id} -> $psa {
                     for %reverse{$psa} -> $si {
                         my $curve = $step-data.entities{$si}.parameters[*-1];
-                        my $curve-type = $step-data.entities{$curve}.map(*.keyword);
-                        my $owned-by = "";
-                        for %reverse{$curve}.list -> $curve-owner {
-                            next if $curve-owner eq $si;
-                            say :$curve-owner.perl;
-                            say $step-data.entities{$curve-owner};
-                            $owned-by ~= $step-data.entities{$curve-owner}.map(*.keyword);
-                        }
-                        say "$curve ($curve-type owned by $owned-by) has color $color";
+                        my @chain = follow-chain($step-data.entities, %reverse, $curve);
+                        next if @chain ~~ /MANIFOLD_SOLID_BREP/;
+                        say @chain.join("\n    ");
+                        say "    has color $color";
                     }
                 }
             }
