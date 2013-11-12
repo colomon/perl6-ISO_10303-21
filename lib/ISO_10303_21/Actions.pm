@@ -20,6 +20,16 @@ class ISO_10303_21::Record {
 class ISO_10303_21::Actions {
     has %.entities;
     
+    method arbitrary($/) {
+        make :16(~$<hex_one>).chr;
+    }
+    method extended2($/) {
+        make $<hex_two>.map({ :16(~$_).chr }).join;
+    }
+    method extended4($/) {
+        make $<hex_four>.map({ :16(~$_).chr }).join;
+    }
+    
     method parameter($/) {
         if $<typed_parameter> {
             make $<typed_parameter>.ast;
