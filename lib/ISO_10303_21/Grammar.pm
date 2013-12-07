@@ -1,5 +1,5 @@
 use v6;
-# use Grammar::Tracer;
+use Grammar::Tracer;
 
 grammar ISO_10303_21::Grammar
 {
