@@ -1,5 +1,5 @@
 use v6;
-use Grammar::Tracer;
+# use Grammar::Tracer;
 
 grammar ISO_10303_21::Grammar
 {
@@ -32,7 +32,8 @@ grammar ISO_10303_21::Grammar
     token control_directive { <page> | <alphabet> | <extended2> | <extended4> | <arbitrary> }
     
     token non_q_char { <.special> | <.digit> | <.space> | <.lower> | <.upper> }
-    token string { "'" [ <non_q_char> | [<apostrophe> ** 2] | [<reverse_solidus> ** 2] | <control_directive> ]* "'" }
+    token string_char { <non_q_char> | [<apostrophe> ** 2] | [<reverse_solidus> ** 2] | <control_directive> }
+    token string { "'" <string_char>* "'" }
     
     token entity_instance_name { '#' <.digit>+ }
     token enumeration { '.' <.upper> [ <.upper> | <.digit> ]* '.' }
