@@ -21,13 +21,12 @@ package ISO_10303_21::Utils {
                 $result ~= $_;
             }
             when Pair {
-                if .key eq $state {
-                    $result ~= .value;
-                } else {
+                if .key ne $state {
                     close-state;
                     $state = .key;
-                    $result ~= "\\$state\\" ~ .value;
+                    $result ~= "\\$state\\";
                 }
+                $result ~= .value;
             }
         }
         close-state;
