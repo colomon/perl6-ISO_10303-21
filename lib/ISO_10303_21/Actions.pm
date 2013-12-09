@@ -29,6 +29,36 @@ class ISO_10303_21::Actions {
     method extended4($/) {
         make $<hex_four>.map({ :16(~$_).chr }).join;
     }
+    method control_directive($/) {
+        if $<page> {
+            make $<page>.ast;
+        } elsif $<alphabet> {
+            make $<alphabet>.ast;
+        } elsif $<extended2> {
+            make $<extended2>.ast;
+        } elsif $<extended4> {
+            make $<extended4>.ast;
+        } else {
+            make $<arbitrary>.ast;
+        }
+    }
+    method non_q_char($/) {
+        make ~$/;
+    }
+    method string_char($/) {
+        if $<non_q_char> {
+            make $<non_q_char>.ast;
+        } elsif $<apostrophe> {
+            make "'";
+        } elsif $<reverse_solidus> {
+            make "\\";
+        } else {
+            make $<control_directive>.ast;
+        }
+    }
+    method string($/) {
+        make @($<string_char>).map(*.ast).join;
+    }
     
     method parameter($/) {
         if $<typed_parameter> {
