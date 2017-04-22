@@ -6,14 +6,25 @@ class ISO_10303_21::Record {
     has @.parameters;
     
     method entity_instances {
-        sub extract-instances($_) {
-            when ISO_10303_21::Record { $_.entity_instances; }
-            when List                 { $_.map(-> $i { extract-instances($i) }); }
-            when /^'#'(\d+)/          { $_; }
-            default                   { Nil; }
+        gather {
+            sub extract-instances($_) {
+                when ISO_10303_21::Record { 
+                    for $_.entity_instances -> $i { 
+                        take $_ 
+                    }
+                }
+                when List { 
+                    for @$_ -> $i {
+                        extract-instances($i)
+                    }
+                }
+                when /^'#'(\d+)/ { take $_; }
+            }
+
+            for @.parameters -> $p {
+                extract-instances($p);
+            }
         }
-        
-        @.parameters.map({ extract-instances($_) }).grep(?*);
     }
 }
 
