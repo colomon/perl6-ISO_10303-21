@@ -13,7 +13,7 @@ class ISO_10303_21::Record {
             default                   { Nil; }
         }
         
-        @.parameters.map({ extract-instances($_) });
+        @.parameters.map({ extract-instances($_) }).grep(?*);
     }
 }
 
@@ -87,7 +87,6 @@ class ISO_10303_21::Actions {
         # bit awkward, but this way works in both Rakudo and Niecza
         if $<parameter_list> {
             my $parameter_list = $<parameter_list>;
-            $parameter_list = $parameter_list[0] if $parameter_list ~~ Parcel;
             make ISO_10303_21::Record.new(:keyword(~$<keyword>),
                                           :parameters($parameter_list.ast // []));
         } else {

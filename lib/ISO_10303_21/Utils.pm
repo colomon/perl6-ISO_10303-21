@@ -2,7 +2,7 @@ use v6;
 
 package ISO_10303_21::Utils {
     sub EncodeString(Str $string) is export {
-        my @codes := $string.ords.map({
+        my @codes = $string.ords.map({
             when * < 32    { '\\X\\' ~ sprintf("%02X", $_) }
             when * < 128   { .chr }
             when * < 256   { '\\X\\' ~ sprintf("%02X", $_) }
@@ -30,7 +30,7 @@ package ISO_10303_21::Utils {
             }
         }
         close-state;
-        
+
         $result ~ "'";
     }
 }
