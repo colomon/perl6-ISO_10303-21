@@ -3,7 +3,7 @@ use Test;
 use ISO_10303_21::Grammar;
 use ISO_10303_21::Actions;
 
-plan 82;
+plan 93;
 
 my $match = ISO_10303_21::Grammar.parse("#12",
                                         :rule<parameter>,
@@ -84,6 +84,21 @@ isa-ok $match.ast.parameters[1], Str, "and parameters[1] is Str";
 is $match.ast.parameters[1], "#42", "and parameters[1] is #42";
 is +$match.ast.entity_instances, 1, "It's got one entity_instance";
 is $match.ast.entity_instances[0], "#42", "... which is #42";
+
+$match = ISO_10303_21::Grammar.parse("LEAF('Blah', ('Megera'))",
+                                     :rule<simple_record>,
+                                     :actions(ISO_10303_21::Actions.new));
+isa-ok $match, Match, "<simple_record> matches LEAF('Blah', ('Megera'))";
+ok $match, "<simple_record> matches LEAF('Blah', ('Megera'))";
+isa-ok $match.ast, ISO_10303_21::Record, "and the ast is ISO_10303_21::Record";
+isa-ok $match.ast.keyword, Str, "with a Str keyword";
+is $match.ast.keyword, "LEAF", "'LEAF'";
+is +$match.ast.parameters, 2, "and the parameters has length 2";
+isa-ok $match.ast.parameters[0], Str, "and parameters[0] is Str";
+is $match.ast.parameters[0], "'Blah'", "and parameters[0] is 'Blah'";
+isa-ok $match.ast.parameters[1], Array, "and parameters[1] is Array";
+is $match.ast.parameters[1][0], "'Megera'", "and parameters[1][0] is 'Megera'";
+is +$match.ast.entity_instances, 0, "It's got zero entity_instances";
 
 $match = ISO_10303_21::Grammar.parse("LEAF()",
                                      :rule<simple_record>,
