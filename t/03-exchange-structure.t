@@ -2,6 +2,8 @@ use v6;
 use Test;
 use ISO_10303_21::Grammar;
 
+plan 36;
+
 my @parameters = (
         "*",
         '$',
@@ -14,21 +16,21 @@ my @parameters = (
     
 for @parameters -> $trial-parameter {
     my $match = ISO_10303_21::Grammar.parse($trial-parameter, :rule<parameter>);
-    isa_ok $match, Match, "<parameter> matches $trial-parameter - 1";
+    isa-ok $match, Match, "<parameter> matches $trial-parameter - 1";
     ok $match, "<parameter> matches $trial-parameter - 2";
 }
 
 {
-    my $header = q[('CAx 3rd Joint Test Round - Test Model AS1', 'Validation Properties Test Model   '),'1';];
+    my $header = q[('CAx 3rd Joint Test Round - Test Model AS1', 'Validation Properties Test Model   '),'1'];
     my $match = ISO_10303_21::Grammar.parse($header, :rule<parameter_list>);
-    isa_ok $match, Match, "<parameter_list> matches a parameter_list - 1";
+    isa-ok $match, Match, "<parameter_list> matches a parameter_list - 1";
     ok $match, "<parameter_list> matches a parameter_list - 2";
 }
 
 {
     my $header = q[FILE_DESCRIPTION(('CAx 3rd Joint Test Round - Test Model AS1', 'Validation Properties Test Model   '),'1');];
     my $match = ISO_10303_21::Grammar.parse($header, :rule<header_entity>);
-    isa_ok $match, Match, "<header_entity> matches a header - 1";
+    isa-ok $match, Match, "<header_entity> matches a header - 1";
     ok $match, "<header_entity> matches a header - 2";
 }
 
@@ -48,21 +50,21 @@ FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 2 10303 214 0 1 1 1 } '));
 ENDSEC;];
     
     my $match = ISO_10303_21::Grammar.parse($header, :rule<header_section>);
-    isa_ok $match, Match, "<header_section> matches a header - 1";
+    isa-ok $match, Match, "<header_section> matches a header - 1";
     ok $match, "<header_section> matches a header - 2";
 }
 
 {
     my $record = q[DIMENSIONAL_EXPONENTS(0.0,0.0,0.0,0.0,0.0,0.0,0.0)];
     my $match = ISO_10303_21::Grammar.parse($record, :rule<simple_record>);
-    isa_ok $match, Match, "<simple_record> matches $record - 1";
+    isa-ok $match, Match, "<simple_record> matches $record - 1";
     ok $match, "<simple_record> matches $record - 2";
 }
 
 {
     my $record = q[#2=DIMENSIONAL_EXPONENTS(0.0,0.0,0.0,0.0,0.0,0.0,0.0);];
     my $match = ISO_10303_21::Grammar.parse($record, :rule<simple_entity_instance>);
-    isa_ok $match, Match, "<simple_entity_instance> matches $record - 1";
+    isa-ok $match, Match, "<simple_entity_instance> matches $record - 1";
     ok $match, "<simple_entity_instance> matches $record - 2";
 }
 
@@ -80,7 +82,7 @@ my @entities = (
 
 for @entities -> $entity {
     my $match = ISO_10303_21::Grammar.parse($entity, :rule<entity_instance>);
-    isa_ok $match, Match, "<entity_instance> matches $entity - 1";
+    isa-ok $match, Match, "<entity_instance> matches $entity - 1";
     ok $match, "<entity_instance> matches $entity - 2";
 }
 
@@ -99,9 +101,6 @@ q[DATA;
 ENDSEC;];
     
     my $match = ISO_10303_21::Grammar.parse($data, :rule<data_section>);
-    isa_ok $match, Match, "<data_section> matches a data - 1";
+    isa-ok $match, Match, "<data_section> matches a data - 1";
     ok $match, "<data_section> matches a data - 2";
 }
-
-
-done;

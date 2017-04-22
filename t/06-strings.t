@@ -8,7 +8,7 @@ plan 21;
 
 {
     my $match = ISO_10303_21::Grammar.parse('\X\42', :rule<arbitrary>, :actions(ISO_10303_21::Actions.new));
-    isa_ok $match, Match, "<arbitrary> matches \\X\\42 - 1";
+    isa-ok $match, Match, "<arbitrary> matches \\X\\42 - 1";
     ok $match, "<arbitrary> matches \\X\\42 - 2";
     is $match.ast, "B", "ast is correct";
 }
@@ -16,17 +16,17 @@ plan 21;
 {
     my $match = ISO_10303_21::Grammar.parse('\X2\03BA1F7903C303BC03B5\X0\\', :rule<extended2>,
                                             :actions(ISO_10303_21::Actions.new));
-    isa_ok $match, Match, "<extended2> matches \\X2\\ - 1";
+    isa-ok $match, Match, "<extended2> matches \\X2\\ - 1";
     ok $match, "<extended2> matches \\X2\\ - 2";
-    is $match.ast.ords.join(","), "954,8057,963,956,949", "ast is correct";
+    is $match.ast.ords.join(","), "954,8057,963,956,949"|"954,972,963,956,949", "ast is correct";
 }
 
 {
     my $match = ISO_10303_21::Grammar.parse('\X4\000003BA00001F79000003C3000003BC000003B5\X0\\', :rule<extended4>,
                                             :actions(ISO_10303_21::Actions.new));
-    isa_ok $match, Match, "<extended4> matches \\X4\\ - 1";
+    isa-ok $match, Match, "<extended4> matches \\X4\\ - 1";
     ok $match, "<extended4> matches \\X4\\ - 2";
-    is $match.ast.ords.join(","), "954,8057,963,956,949", "ast is correct";
+    is $match.ast.ords.join(","), "954,8057,963,956,949"|"954,972,963,956,949", "ast is correct";
 }
 
 my @strings = "Ἰοὺ ἰού· τὰ πάντʼ ἂν ἐξήκοι σαφῆ.", "子曰：「學而時習之，不亦說乎？有朋自遠方來，不亦樂乎？ 人不知而不慍，不亦君子乎？」", 
@@ -38,7 +38,7 @@ for @strings -> $string {
     ok $encoded.ords.grep({ $_ < 32 || 127 < $_ }) == 0, "$string is encoded with all ASCII characters";
     
     my $match = ISO_10303_21::Grammar.parse($encoded, :rule<string>, :actions(ISO_10303_21::Actions.new));
-    isa_ok $match, Match, "<string> matches string - 1";
+    isa-ok $match, Match, "<string> matches string - 1";
     ok $match, "<string> matches string - 2";
     say $match.ast;
     is $match.ast, $string, "ast is correct";
