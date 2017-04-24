@@ -10,20 +10,17 @@ sub entity-references($object) {
     if $object ~~ ISO_10303_21::Record {
         $object.entity_instances;
     } else {
-        @($object).map(*.entity_instances);
+        @($object).map(*.entity_instances).flat;
     }
 }
 
-for @*ARGS -> $file {
+sub MAIN ($file) {
     $*ERR.say: "Reading $file";
     my $file-data = slurp($file);
     $file-data .= subst(/"/*" .*? "*/"/, " ", :global);
     my $step-data = ISO_10303_21::Actions.new;
-    my $match = ISO_10303_21::LooseGrammar.parse($file-data, :rule<exchange_file>, :actions($step-data));
-    unless $match ~~ Match && $match {
-        $*ERR.say: "Something went wrong with the import.";
-        next;
-    }
+    die "Something went wrong with the import"
+        unless ISO_10303_21::LooseGrammar.parse($file-data, :rule<exchange_file>, :actions($step-data));
     
     my %look-for;
     for $step-data.entities.kv -> $index, $object {
