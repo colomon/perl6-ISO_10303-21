@@ -4,13 +4,13 @@ use v6;
 use ISO_10303_21::Grammar;
 
 for @*ARGS -> $file {
-    my $keyword-bag = KeyBag.new;
+    my $keyword-bag = BagHash.new;
     my $actions = class { 
         method keyword($/) { $keyword-bag{~$/}++ }
     };
 
     say "Reading $file";
-    my $file-data = slurp($file);
+    my $file-data = slurp($file, encoding => "latin1");
     $file-data .= subst(/"/*" .*? "*/"/, " ", :global);
     
     say "Parsing $file";
