@@ -24,7 +24,7 @@ sub face-to-edges(%entities, $face) {
     for %entities{$face}.parameters[1].list -> $loop {
         if my $loop-entity = %entities{$loop} {
             if my $edge-loop-entity = %entities{$loop-entity.parameters[1]} {
-                @edges.push($edge-loop-entity.parameters[1].list);
+                @edges.push(|$edge-loop-entity.parameters[1].list);
             }
         } else {
             $*ERR.say: "Unable to find loop $loop";
@@ -38,13 +38,14 @@ sub face-to-edges(%entities, $face) {
         }
     }
 
-    @edges.Set;
+    set(|@edges);
 }
 
-sub MAIN($file, $face is rw) {
-    $face = "#" ~ $face unless $face ~~ /^ "#"/;
-    $*ERR.say: "Reading $file looking for face $face";
-    my $file-data = slurp($file);
+sub MAIN($file, $face-raw) {
+    my $face = $face-raw ~~ /^ "#"/ ?? $face-raw !! "#" ~ $face-raw;
+    note "Reading $file looking for face $face";
+    
+    my $file-data = slurp($file, encoding => "latin1");
     $file-data .= subst(/"/*" .*? "*/"/, " ", :global);
     my $step-data = ISO_10303_21::Actions.new;
     my $match = ISO_10303_21::LooseGrammar.parse($file-data, :rule<exchange_file>, :actions($step-data));
@@ -62,7 +63,25 @@ sub MAIN($file, $face is rw) {
     }
 
     my $known-edges = %edges-of-face{$face};
-    say :$known-edges.perl;
+    
+    my %faces-of-edge;
+    for %edges-of-face.keys -> $id {
+        # dd $id;
+        # dd %edges-of-face{$id};
+        # dd %edges-of-face{$id}.keys;
+        for %edges-of-face{$id}.keys -> $edge {
+            %faces-of-edge{$edge}.push: $id;
+        }
+    }
+    
+    # dd $known-edges;
+    my $faces = SetHash.new;
+    for $known-edges.keys -> $edge {
+        $faces (|)= %faces-of-edge{$edge};
+        # dd %faces-of-edge{$edge};
+    }
+    
+    dd $faces;
 
-    say %edges-of-face.keys.grep({ %edges-of-face{$_} (&) $known-edges });
+    # say %edges-of-face.keys.grep({ %edges-of-face{$_} (&) $known-edges });
 }
