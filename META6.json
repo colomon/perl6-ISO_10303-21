@@ -7,7 +7,7 @@
     "provides" : {
         "ISO_10303_21::Actions"      : "lib/ISO_10303_21/Actions.pm",
         "ISO_10303_21::Grammar"      : "lib/ISO_10303_21/Grammar.pm",
-        "ISO_10303_21::Utils"        : "lib/ISO_10303_21/Utils.pm",
+        "ISO_10303_21::Utils"        : "lib/ISO_10303_21/Utils.pm"
     },
     "source-type"   : "git",
     "source-url"    : "git://github.com/colomon/perl6-ISO_10303_21.git"
