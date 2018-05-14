@@ -29,7 +29,9 @@ class ISO_10303_21::Record {
 }
 
 class ISO_10303_21::Actions {
+    has $.header;
     has %.entities;
+    has %.entities-text;
     
     method arbitrary($/) {
         make :16(~$<hex_one>).chr;
@@ -106,6 +108,16 @@ class ISO_10303_21::Actions {
         }
     }
     method subsuper_record($/) { make $<simple_record>».ast }
-    method simple_entity_instance($/)  { %.entities{$<entity_instance_name>} = $<simple_record>.ast }
-    method complex_entity_instance($/) { %.entities{$<entity_instance_name>} = $<subsuper_record>.ast }
+    method simple_entity_instance($/) { 
+        %.entities{$<entity_instance_name>} = $<simple_record>.ast;
+        %.entities-text{$<entity_instance_name>} = ~$<simple_record>;
+    }
+    method complex_entity_instance($/) {
+        %.entities{$<entity_instance_name>} = $<subsuper_record>.ast;
+        %.entities-text{$<entity_instance_name>} = ~$<subsuper_record>;
+    }
+    
+    method header_section($/) {
+        $!header = ~$/;
+    }
 }
