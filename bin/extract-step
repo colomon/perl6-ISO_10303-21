@@ -1,3 +1,5 @@
+#!/usr/bin/env perl6
+
 use v6;
 use ISO_10303_21::Grammar;
 use ISO_10303_21::Actions;
@@ -41,7 +43,27 @@ use ISO_10303_21::Actions;
 #     set(|@edges);
 # }
 
-sub MAIN($file, $out-file, *@ids) {
+sub find-sub-entities($step-data, $id) {
+    my $sub-entities = SetHash.new;
+
+    sub add-sub-entities($id) {
+        return if $sub-entities{$id};
+        $sub-entities{$id} = True;
+
+        for |$step-data.entities{$id} -> $entity {
+            for $entity.entity_instances -> $sub-id {
+                add-sub-entities($sub-id);
+            }
+        }
+    }
+
+    add-sub-entities($id);
+    $sub-entities;
+}
+
+sub MAIN($file, $out-file, *@raw-ids) {
+    my @ids = @raw-ids.map("#" ~ *);
+
     my $file-data = slurp($file, encoding => "latin1");
     $file-data .= subst(/"/*" .*? "*/"/, " ", :global);
     my $step-data = ISO_10303_21::Actions.new;
@@ -53,24 +75,53 @@ sub MAIN($file, $out-file, *@ids) {
     $*ERR.say: "$file read and parsed";
 
     my $needed = SetHash.new;
-    sub add-sub-entities($id) {
-        return if $needed{$id};
-        $needed{$id} = True;
-        
-        for |$step-data.entities{$id} -> $entity {
-            for $entity.entity_instances -> $sub-id {
-                add-sub-entities($sub-id);
+    for @ids -> $id {
+        $needed (|)= find-sub-entities($step-data, $id);
+    }
+
+    my $max-id = $step-data.entities.keys.map({ +$_.substr(1) }).max;
+    dd $max-id;
+    
+    my @faces = @ids.grep(-> $id { $step-data.entities{$id} ~~ ISO_10303_21::Record 
+                                   && $step-data.entities{$id}.keyword ~~ / "ADVANCED_FACE" / });
+
+    my %framework;
+    if @faces {
+        my %shape-reps;
+        for $step-data.entities.kv -> $id, $entity {
+            if $entity ~~ ISO_10303_21::Record && $entity.keyword ~~ / ^ "ADVANCED_BREP_SHAPE_REPRESENTATION" $ / {
+                %shape-reps{$id} = find-sub-entities($step-data, $id);
+            }
+        }
+
+        for %shape-reps.kv -> $shape-id, $shape-set {
+            my $faces-in-shape = $shape-set (&) @faces;
+            if $faces-in-shape {
+                my $shape-rep = $step-data.entities{$shape-id};
+                my $context = $shape-rep.parameters[*-1];
+                $needed (|)= find-sub-entities($step-data, $context);
+                
+                my $shell = "#" ~ ++$max-id;
+                %framework{$shell} = "OPEN_SHELL('', ({ $faces-in-shape.keys.join(",") }))";
+                my $model = "#" ~ ++$max-id;
+                %framework{$model} = "SHELL_BASED_SURFACE_MODEL ('', ($model))";
+                %framework{"#" ~ ++$max-id} = "SHAPE_REPRESENTATION('dummy',($model),$context)";
             }
         }
     }
     
-    for @ids -> $id {
-        add-sub-entities("#" ~ $id);
-    }
     
     # output
     my $out = $out-file.IO.open(:w);
-    for $needed.keys -> $id {
+    $out.say: "ISO-10303-21;";
+    $out.say: $step-data.header;
+    $out.say: "DATA;";
+    for $needed.keys.sort({ +$_.substr(1) }) -> $id {
         $out.say: "$id={ $step-data.entities-text{$id} };";
     }
+    for %framework.keys -> $id {
+        $out.say: "$id={ %framework{$id} };";
+    }
+    $out.say: "ENDSEC;";
+    $out.say: "END-ISO-10303-21;";
 }
