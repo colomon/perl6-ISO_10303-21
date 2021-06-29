@@ -42,7 +42,8 @@ sub MAIN ($file) {
     while $previous-count != +%look-for {
         $previous-count = +%look-for;
         for $step-data.entities.kv -> $index, $object {
-            for entity-references($object) -> $reference {
+            my @entity-refs = entity-references($object);
+            for @entity-refs -> $reference {
                 if %look-for{$reference} {
                     %look-for{$index} = 1;
                 }
@@ -51,9 +52,6 @@ sub MAIN ($file) {
         print-sorted-keys(%look-for);
     }
 
-    say "digraph finite_state_machine \{";
-    say "    rankdir=LR";
-    
     my %tags;
     my %types;
     for %look-for.keys -> $index {
@@ -64,26 +62,35 @@ sub MAIN ($file) {
             %tags{$entity} = 1;
         }
     }
-    
-    for %tags.keys -> $index {
+
+    # Create graph
+    say "digraph finite_state_machine \{";
+    say "    rankdir=LR";
+    say "    overlap=false";
+
+    # Make nodes
+    for %tags.keys.sort -> $index {
         my $object = $step-data.entities{$index};
         if $object ~~ ISO_10303_21::Record {
             given $object.keyword {
-                when "CONTEXT_DEPENDENT_SHAPE_REPRESENTATION" { say qq{    "$index" [shape=box,color=yellow,style=filled] } }
+                when "CONTEXT_DEPENDENT_SHAPE_REPRESENTATION" { say qq{    "$index" [color=yellow,style=filled] } }
                 when "ADVANCED_BREP_SHAPE_REPRESENTATION" { say qq{    "$index" [shape=box,color=blue,style=filled] } }
-                when "SHAPE_REPRESENTATION" { say qq{    "$index" [shape=box] } }
+                when / "SHAPE_REPRESENTATION" $ / { say qq{    "$index" [shape=box] } }
                 when "NEXT_ASSEMBLY_USAGE_OCCURRENCE" { say qq{    "$index" [shape=diamond] } }
                 when "AXIS2_PLACEMENT_3D" { say qq{    "$index" [shape=invtriangle] } }
+                when "PRODUCT_DEFINITION_SHAPE" { say qq{    "$index" [shape=hexagon] } }
             }
         }
     }
-    
-    for %look-for.keys -> $index {
+
+    # Make edges
+    for %tags.keys.sort -> $index {
         my $object = $step-data.entities{$index};
         for entity-references($object) -> $reference {
-            say qq[    "$index" -> "$reference";];
+            say qq[    "$index" -> "$reference";] if %look-for{$reference} || %look-for{$index};
         }
     }
+    
     say "\}";
     
     for %types.keys -> $type {
